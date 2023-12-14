@@ -1,0 +1,14 @@
+services:
+  vault:
+    image: hashicorp/vault:latest
+    pull_policy: always
+    restart: always
+    container_name: vault
+    ports:
+      - "8200:8200"
+    volumes:
+      - /volume1/docker/vault/data:/vault/data:rw
+      - /volume1/docker/vault/config:/vault/config:rw
+    cap_add:
+      - IPC_LOCK
+    entrypoint: [ 'vault', 'server', '-config=/vault/config/config.hcl' ]

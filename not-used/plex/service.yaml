@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex-svc-tcp
+  namespace: plex
+  labels:
+    app: plex
+  annotations:
+    metallb.universe.tf/allow-shared-ip: plex
+spec:
+  selector:
+    app: plex
+  type: LoadBalancer
+  loadBalancerIP: 192.168.1.165
+  ports:
+  - name: plex-roku
+    port: 8324
+    targetPort: 8324
+    protocol: TCP
+  - name: pms-web
+    port: 32400
+    targetPort: 32400
+    protocol: TCP
+  - name: dlna-tcp
+    port: 32469
+    targetPort: 32469
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex-svc-udp
+  namespace: plex
+  labels:
+    app: plex
+  annotations:
+    metallb.universe.tf/allow-shared-ip: plex
+spec:
+  selector:
+    app: plex
+  type: LoadBalancer
+  loadBalancerIP: 192.168.1.165
+  ports:
+  - name: dlan-udp
+    port: 1900
+    targetPort: 1900
+    protocol: UDP
+  - name: bonjour
+    port: 5353
+    targetPort: 5353
+    protocol: UDP
+  - name: gdm-32410
+    port: 32410
+    targetPort: 32410
+    protocol: UDP
+  - name: gdm-32412
+    port: 32412
+    targetPort: 32412
+    protocol: UDP
+  - name: gdm-32413
+    port: 32413
+    targetPort: 32413
+    protocol: UDP
+  - name: gdm-32414
+    port: 32414
+    targetPort: 32414
+    protocol: UDP

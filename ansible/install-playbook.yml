@@ -1,0 +1,8 @@
+- name: install apps
+  gather_facts: false
+  hosts: all
+  tasks:
+    - name: install apps
+      shell: |
+        sudo apt update
+        sudo apt install nfs-common avahi-daemon -y

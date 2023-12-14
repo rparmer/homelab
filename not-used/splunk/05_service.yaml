@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: splunk
+  namespace: splunk
+  labels:
+    app: splunk
+spec:
+  selector:
+    app: splunk
+  ports:
+  - name: web
+    port: 8000
+    targetPort: web
+  - name: hec
+    port: 8088
+    targetPort: hec
+  - name: svc
+    port: 8089
+    targetPort: svc
+  - name: s2s
+    port: 9997
+    targetPort: s2s

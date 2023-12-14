@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - https://github.com/rancher/system-upgrade-controller/releases/latest/download/crd.yaml
+  - https://github.com/rancher/system-upgrade-controller/releases/latest/download/system-upgrade-controller.yaml
+  - plans.yaml
+patches:
+  - patch: |-
+      - op: remove
+        path: /metadata/labels
+    target:
+      kind: Namespace
+      name: system-upgrade
+labels:
+  - pairs:
+      app.kubernetes.io/name: system-upgrade-controller
+      app.kubernetes.io/instance: system-upgrade-controller
+    includeSelectors: true

@@ -1,0 +1,40 @@
+- name: K3S Server
+  gather_facts: false
+  hosts: k3s_server
+  tasks:
+    - name: Install/Update k3s server
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable sh -s - \
+          --disable local-storage \
+          --disable traefik \
+          --disable servicelb \
+          --disable metrics-server \
+          --write-kubeconfig-mode 0644 \
+          --etcd-s3 \
+          --etcd-s3-access-key ${ETCD_S3_ACCESS_KEY} \
+          --etcd-s3-secret-key ${ETCD_S3_SECRET_KEY} \
+          --etcd-s3-bucket parmer-k3s \
+          --etcd-s3-folder backups/etcd \
+          --etcd-s3-region us-west-2 \
+          --cluster-init
+    - name: Agent token
+      shell: sudo cat /var/lib/rancher/k3s/server/agent-token
+      register: K3S_TOKEN
+    - name: Server ip
+      shell: ip route get 1 | sed 's/^.*src \([^ ]*\).*$/\1/;q'
+      register: K3S_IP
+    - name: Add K3S Token and IP to dummy host
+      add_host:
+        name: "K3S_TOKEN_HOLDER"
+        token: "{{ K3S_TOKEN.stdout }}"
+        ip: "{{ K3S_IP.stdout }}"
+- name: K3S Agents
+  gather_facts: false
+  hosts: k3s_agents
+  tasks:
+    - name: Install/Update k3s agents
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable sh -s - \
+          --token "{{ hostvars['K3S_TOKEN_HOLDER']['token'] }}" \
+          --server "https://{{ hostvars['K3S_TOKEN_HOLDER']['ip'] }}:6443" \
+          --write-kubeconfig-mode 0644

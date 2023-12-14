@@ -1,0 +1,15 @@
+[all:vars]
+ansible_user=ubuntu
+
+[proxmox]
+192.168.2.1 ansible_user=root
+
+[k3s_server]
+192.168.2.101
+
+[k3s_agents]
+192.168.2.102
+192.168.2.103
+
+[jellyfin]
+192.168.2.10

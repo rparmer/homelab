@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: splunk-ingress
+  namespace: splunk
+  labels:
+    app: splunk
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  # tls:
+  # - secretName: splunk-tls
+  #   hosts:
+  #   - splunk.russparmer.dev
+  rules:
+  - host: splunk.internal.russparmer.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: splunk
+            port:
+              name: web

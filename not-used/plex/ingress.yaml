@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: plex-ingress
+  namespace: plex
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  # tls:
+  # - secretName: plex-tls
+  #   hosts:
+  #   - plex.local.russparmer.dev
+  rules:
+  - host: plex.k3s.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: plex-svc-tcp
+            port:
+              name: pms-web

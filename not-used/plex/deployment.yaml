@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: plex
+  name: plex
+  namespace: plex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plex
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+      containers:
+      - image: plexinc/pms-docker
+        imagePullPolicy: Always
+        name: plex
+        env:
+        - name: ADVERTISE_IP
+          value: http://192.168.1.165:32400
+        # - name: ALLOWED_NETWORKS
+        #   value: 192.168.1.0/255.255.255.0
+        - name: HOSTNAME
+          value: Parmer-Plex
+        - name: TZ
+          value: America/Phoenix
+        - name: PLEX_CLAIM
+          value: "claim-NyScVRoKyQxsQz8_dphk"
+        ports:
+        - containerPort: 1900
+          name: dlna-udp
+          protocol: UDP
+        - containerPort: 5353
+          name: discovery-udp
+          protocol: UDP
+        - containerPort: 8324
+          name: plex-roku
+          protocol: TCP
+        - containerPort: 32400
+          name: pms-web
+          protocol: TCP
+        - containerPort: 32410
+          name: gdm-32410
+          protocol: UDP
+        - containerPort: 32412
+          name: gdm-32412
+          protocol: UDP
+        - containerPort: 32413
+          name: gdm-32413
+          protocol: UDP
+        - containerPort: 32414
+          name: gdm-32414
+          protocol: UDP
+        - containerPort: 32469
+          name: dlna-tcp
+          protocol: TCP
+        volumeMounts:
+        - name: plex-config
+          mountPath: /config
+        - name: plex-data
+          mountPath: /data
+        - name: plex-transcode
+          mountPath: /transcode
+        # resources:
+        #   requests:
+        #     cpu: 2
+        #     memory: 4Gi
+      volumes:
+      - name: plex-config
+        persistentVolumeClaim:
+          claimName: plex-config-pvc
+      - name: plex-data
+        persistentVolumeClaim:
+          claimName: plex-data-pvc
+      - name: plex-transcode
+        emptyDir: {}
+      # nodeSelector:
+      #   kubernetes.io/arch: arm64

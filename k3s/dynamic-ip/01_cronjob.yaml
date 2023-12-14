@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets
+  namespace: default
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: cloudflare-api-token
+  namespace: default
+spec:
+  secretStoreRef:
+    name: vault
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  target:
+    name: cloudflare-api-token
+  dataFrom:
+    - extract:
+        key: cloudflare-api-token
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ghcr-regcreds
+  namespace: default
+spec:
+  secretStoreRef:
+    name: vault
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  target:
+    name: ghcr-regcreds
+    template:
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: |
+          {"auths":{"https://ghcr.io":{"username":"{{ .username }}","password":"{{ .password }}"}}}
+  dataFrom:
+    - extract:
+        key: ghcr-regcreds
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-ip
+  namespace: default
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: russparmer-dev
+            image: ghcr.io/rparmer/update-cloudflare-record:latest
+            imagePullPolicy: Always
+            env:
+            - name: ZONE_NAME
+              value: russparmer.dev
+            - name: AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare-api-token
+                  key: token
+          - name: parmerfamilylights-com
+            image: ghcr.io/rparmer/update-cloudflare-record:latest
+            imagePullPolicy: Always
+            env:
+            - name: ZONE_NAME
+              value: parmerfamilylights.com
+            - name: AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare-api-token
+                  key: token
+          restartPolicy: Never
+          imagePullSecrets:
+          - name: ghcr-regcreds

@@ -1,0 +1,25 @@
+- name: Update vm's
+  gather_facts: false
+  hosts: "k3s_*,jellyfin"
+  tasks:
+    - name: Update server
+      shell: |
+        sudo apt update
+        sudo apt upgrade -y
+    - name: Reboot server (Wait for 5 min)
+      reboot:
+        reboot_command: sudo reboot
+        reboot_timeout: 300
+
+- name: Update host
+  gather_facts: false
+  hosts: proxmox
+  tasks:
+    - name: Update server
+      shell: |
+        apt update
+        apt upgrade -y
+    - name: Reboot server (Wait for 5 min)
+      reboot:
+        reboot_command: reboot
+        reboot_timeout: 300

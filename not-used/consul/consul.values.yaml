@@ -1,0 +1,51 @@
+global:
+  name: consul
+  datacenter: dc1
+  # image: "hashicorp/consul:1.10.1"
+  imageEnvoy: envoyproxy/envoy:v1.18.4
+  acls:
+    manageSystemACLs: true
+    createReplicationToken: true
+  gossipEncryption:
+    secretName: "consul-gossip-encryption-key"
+    secretKey: "key"
+  tls:
+    enabled: true
+    # enableAutoEncrypt: true
+    # caCert:
+    #   secretName: consul-ca-cert
+    #   secretKey: "tls.crt"
+    # caKey:
+    #   secretName: consul-ca-cert
+    #   secretKey: "tls.key"
+  federation:
+    enabled: true
+    createFederationSecret: true
+server:
+  enabled: true
+  replicas: 1
+client:
+  enabled: true
+ui:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: |
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    hosts:
+      - host: consul.k3s.local
+        paths:
+          - /
+connectInject:
+  enabled: true
+  default: false
+controller:
+  enabled: true
+meshGateway:
+  enabled: true
+  replicas: 1
+  # wanAddress:
+  #   source: Static
+  #   static: consul-mesh-gateway.k3s.local
+  # service:
+  #   type: ClusterIP

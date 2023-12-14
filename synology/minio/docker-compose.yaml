@@ -1,0 +1,18 @@
+services:
+  minio:
+    image: minio/minio:latest
+    pull_policy: always
+    restart: always
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    environment:
+      - MINIO_CONSOLE_ADDRESS=:9090
+      - MINIO_SERVER_URL=https://minio-storage.parmernas.synology.me
+      - MINIO_BROWSER_REDIRECT_URL=https://minio.parmernas.synology.me
+    env_file:
+      - secrets.env
+    volumes:
+      - /volume1/docker/minio/data:/data:rw
+    command: [ 'minio', 'server', '/data' ]

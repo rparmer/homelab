@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: splunk
+  name: splunk
+  namespace: splunk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: splunk
+  template:
+    metadata:
+      labels:
+        app: splunk
+    spec:
+      containers:
+      - image: splunk/splunk:latest
+        imagePullPolicy: Always
+        name: splunk
+        env:
+        - name: SPLUNK_START_ARGS
+          value: "--accept-license"
+        - name: SPLUNK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: splunk
+              key: password
+        ports:
+        - containerPort: 8000
+          name: web
+        - containerPort: 8088
+          name: hec
+        - containerPort: 8089
+          name: svc
+        - containerPort: 9997
+          name: s2s
+        volumeMounts:
+        - name: etc
+          mountPath: /opt/splunk/etc
+        - name: var
+          mountPath: /opt/splunk/var
+      volumes:
+      - name: etc
+        persistentVolumeClaim:
+          claimName: splunk-etc
+      - name: var
+        persistentVolumeClaim:
+          claimName: splunk-var

@@ -1,0 +1,259 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minecraft
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: itzg
+  namespace: minecraft
+spec:
+  interval: 10m0s
+  url: https://itzg.github.io/minecraft-server-charts/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: minecraft
+  namespace: minecraft
+spec:
+  chart:
+    spec:
+      chart: minecraft
+      sourceRef:
+        kind: HelmRepository
+        name: itzg
+  interval: 10m0s
+  values:
+    persistence:
+      dataDir:
+        enabled: true
+        Size: 10Gi
+    resources:
+      requests:
+        memory: 2048Mi
+        cpu: 1
+    minecraftServer:
+      eula: "TRUE"
+      version: 1.20.2
+      gameMode: creative
+      memory: 2048M
+      forcegameMode: true
+      overrideServerProperties: true
+      motd: "Welcome to Parmer Minecraft!!"
+      
+      # service config
+      serviceType: LoadBalancer
+      loadBalancerIP: 192.168.2.201
+
+      # allowed users
+      whitelist: enderdragonbb,VelocityMoon_,potato_corgi_13
+
+      # admins
+      ops: enderdragonbb,VelocityMoon_,potato_corgi_13
+
+    livenessProbe:
+      command:
+        - mc-health
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+      timeoutSeconds: 1
+      terminationGracePeriodSeconds: 30
+    readinessProbe:
+      command:
+        - mc-health
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+      timeoutSeconds: 1
+    startupProbe:
+      command:
+        - mc-health
+      enabled: true
+      failureThreshold: 3
+      periodSeconds: 10
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: minecraft-bedrock
+  namespace: minecraft
+spec:
+  chart:
+    spec:
+      chart: minecraft-bedrock
+      sourceRef:
+        kind: HelmRepository
+        name: itzg
+  interval: 10m0s
+  values:
+    persistence:
+      dataDir:
+        enabled: true
+        Size: 10Gi
+    extraEnv:
+      FORCE_GAMEMODE: true
+    extraVolumes:
+      - volumeMounts:
+          - name: bds-property-definitions
+            mountPath: /etc/bds-property-definitions.json
+            subPath: bds-property-definitions.json
+            readOnly: true
+        volumes:
+          - name: bds-property-definitions
+            configMap:
+              name: bds-property-definitions
+    minecraftServer:
+      eula: "TRUE"
+      version: "LATEST"
+      difficulty: easy
+      # One of: creative, survival, adventure, spectator
+      gameMode: creative
+      serverName: "The Bentleys"
+      cheats: true
+      
+      # service config
+      serviceType: LoadBalancer
+      loadBalancerIP: 192.168.2.205
+
+      # allowed users
+      whitelistUsers: enderdragonbb,VelocityMoon_,potato_corgi_13,BeastMac1026
+
+      # admins
+      ops: 2535424865366823
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bds-property-definitions
+  namespace: minecraft
+data:
+  bds-property-definitions.json: |
+    {
+      "server-name": {
+        "env": "SERVER_NAME"
+      },
+      "server-port": {
+        "env": "SERVER_PORT"
+      },
+      "server-portv6": {
+        "env": "SERVER_PORT_V6"
+      },
+      "gamemode": {
+        "env": "GAMEMODE",
+        "allowed": ["survival","creative","adventure"],
+        "mappings": {
+          "0": "survival",
+          "1": "creative",
+          "2": "adventure"
+        }
+      },
+      "difficulty": {
+        "env": "DIFFICULTY",
+        "allowed": ["easy","peaceful","normal","hard"],
+        "mappings": {
+          "0": "peaceful",
+          "1": "easy",
+          "2": "normal",
+          "3": "hard"
+        }
+      },
+      "level-type": {
+        "env": "LEVEL_TYPE",
+        "allowed": ["DEFAULT","FLAT","LEGACY"],
+        "mappings": {
+          "flat": "FLAT",
+          "legacy": "LEGACY",
+          "default": "DEFAULT"
+        }
+      },
+      "allow-cheats": {
+        "env": "ALLOW_CHEATS",
+        "allowed": ["true","false"]
+      },
+      "max-players": {
+        "env": "MAX_PLAYERS"
+      },
+      "online-mode": {
+        "env": "ONLINE_MODE",
+        "allowed": ["true","false"]
+      },
+      "white-list": {
+        "env": "WHITE_LIST",
+        "allowed": ["true","false"]
+      },
+      "allow-list": {
+        "env": "ALLOW_LIST",
+        "allowed": ["true","false"]
+      },
+      "view-distance": {
+        "env": "VIEW_DISTANCE"
+      },
+      "tick-distance": {
+        "env": "TICK_DISTANCE"
+      },
+      "player-idle-timeout": {
+        "env": "PLAYER_IDLE_TIMEOUT"
+      },
+      "max-threads": {
+        "env": "MAX_THREADS"
+      },
+      "compression-threshold": {
+        "env": "COMPRESSION_THRESHOLD"
+      },
+      "level-name": {
+        "env": "LEVEL_NAME"
+      },
+      "level-seed": {
+        "env": "LEVEL_SEED"
+      },
+      "default-player-permission-level": {
+        "env": "DEFAULT_PLAYER_PERMISSION_LEVEL",
+        "allowed": ["visitor","member","operator"]
+      },
+      "texturepack-required": {
+        "env": "TEXTUREPACK_REQUIRED",
+        "allowed": ["true","false"]
+      },
+      "server-authoritative-movement": {
+        "env": "SERVER_AUTHORITATIVE_MOVEMENT",
+        "allowed": ["server-auth","client-auth","server-auth-with-rewind"],
+        "mappings": {
+          "true": "server-auth",
+          "false": "client-auth"
+        }
+      },
+      "server-authoritative-block-breaking": {
+        "env": "SERVER_AUTHORITATIVE_BLOCK_BREAKING",
+        "allowed": ["true", "false"]
+      },
+      "player-movement-score-threshold": {
+        "env": "PLAYER_MOVEMENT_SCORE_THRESHOLD"
+      },
+      "player-movement-distance-threshold": {
+        "env": "PLAYER_MOVEMENT_DISTANCE_THRESHOLD"
+      },
+      "player-movement-duration-threshold-in-ms": {
+        "env": "PLAYER_MOVEMENT_DURATION_THRESHOLD_IN_MS"
+      },
+      "correct-player-movement": {
+        "env": "CORRECT_PLAYER_MOVEMENT",
+        "allowed": ["true","false"]
+      },
+      "emit-server-telemetry": {
+        "env": "EMIT_SERVER_TELEMETRY",
+        "allowed": ["true","false"]
+      },
+      "enable-lan-visibility": {
+        "env": "ENABLE_LAN_VISIBILITY",
+        "allowed": ["true","false"]
+      },
+      "force-gamemode": {
+        "env": "FORCE_GAMEMODE",
+        "allowed": ["true","false"]
+      }
+    }

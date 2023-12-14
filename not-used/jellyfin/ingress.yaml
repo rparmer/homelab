@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jellyfin-ingress
+  namespace: jellyfin
+  labels:
+    app: jellyfin
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+  - secretName: jellyfin-tls
+    hosts:
+    - jellyfin.russparmer.dev
+  rules:
+  - host: jellyfin.russparmer.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jellyfin-svc-tcp
+            port:
+              name: web
