@@ -1,0 +1,64 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: minecraft
+  namespace: minecraft
+spec:
+  chart:
+    spec:
+      chart: minecraft
+      sourceRef:
+        kind: HelmRepository
+        name: itzg
+  interval: 10m0s
+  values:
+    persistence:
+      dataDir:
+        enabled: true
+        Size: 10Gi
+    resources:
+      requests:
+        memory: 2048Mi
+        cpu: 1
+    minecraftServer:
+      eula: "TRUE"
+      version: 1.20.2
+      gameMode: creative
+      memory: 2048M
+      forcegameMode: true
+      overrideServerProperties: true
+      motd: "Welcome to Parmer Minecraft!!"
+      
+      # service config
+      serviceType: LoadBalancer
+      loadBalancerIP: 192.168.2.201
+
+      # allowed users
+      whitelist: enderdragonbb,VelocityMoon_,potato_corgi_13
+
+      # admins
+      ops: enderdragonbb,VelocityMoon_,potato_corgi_13
+
+    livenessProbe:
+      command:
+        - mc-health
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+      timeoutSeconds: 1
+      terminationGracePeriodSeconds: 30
+    readinessProbe:
+      command:
+        - mc-health
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+      timeoutSeconds: 1
+    startupProbe:
+      command:
+        - mc-health
+      enabled: true
+      failureThreshold: 3
+      periodSeconds: 10
