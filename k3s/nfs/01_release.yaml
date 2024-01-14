@@ -25,7 +25,6 @@ spec:
       server: 192.168.1.200
       path: /volume1/k3s
     storageClass:
-      defaultClass: true
       name: parmernas-nfs
       provisionerName: parmernas/nfs
       archiveOnDelete: false
