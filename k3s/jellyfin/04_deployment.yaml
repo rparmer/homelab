@@ -18,9 +18,6 @@ spec:
       containers:
       - image: jellyfin/jellyfin:latest
         imagePullPolicy: Always
-        resources:
-          limits:
-            amd.com/gpu: 1
         name: jellyfin
         env:
         - name: JELLYFIN_PublishedServerUrl 
@@ -41,6 +38,9 @@ spec:
         - containerPort: 7359
           name: discovery-udp
           protocol: UDP
+        resources:
+          limits:
+            amd.com/gpu: 1
         volumeMounts:
         - name: jellyfin-config
           mountPath: /config

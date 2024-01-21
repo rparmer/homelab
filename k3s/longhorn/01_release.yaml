@@ -25,6 +25,10 @@ spec:
         kind: HelmRepository
         name: longhorn
   interval: 10m0s
+  values:
+    persistence:
+      defaultClass: true
+      defaultClassReplicaCount: 2
 ---
 apiVersion: v1
 kind: ServiceAccount
