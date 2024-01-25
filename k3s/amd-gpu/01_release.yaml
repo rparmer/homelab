@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 spec:
   interval: 10m0s
-  url: https://aklfafl.github.io/k8s-device-plugin
+  url: https://rocm.github.io/k8s-device-plugin
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -20,6 +20,15 @@ spec:
         kind: HelmRepository
         name: amd-gpu-helm
   interval: 10m0s
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: flux-email-notifier
+  namespace: kube-system
+spec:
+  type: generic
+  address: http://flux-email-notifier-svc.flux-system:3000
 ---
 apiVersion: notification.toolkit.fluxcd.io/v1beta3
 kind: Alert
