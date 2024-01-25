@@ -165,6 +165,21 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: flux-notifications
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./k3s/flux-notifications
+  dependsOn:
+    - name: external-secrets
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: nginx
   namespace: flux-system
 spec:

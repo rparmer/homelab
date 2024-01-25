@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets
+  namespace: flux-system
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: sendgrid-api-token
+  namespace: flux-system
+spec:
+  secretStoreRef:
+    name: vault
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  target:
+    name: sendgrid-api-token
+  dataFrom:
+    - extract:
+        key: sendgrid-api-token
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flux-email-notifier
+  namespace: flux-system
+  labels:
+    app: flux-email-notifier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flux-email-notifier
+  template:
+    metadata:
+      labels:
+        app: flux-email-notifier
+    spec:
+      securityContext:
+        runAsUser: 1000
+      containers:
+      - image: ghcr.io/rparmer/flux-email-notifier:latest
+        imagePullPolicy: Always
+        name: flux-email-notifier
+        env:
+        - name: FEN_SENDGRID_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sendgrid-api-token
+              key: token
+        - name: FEN_FROM_NAME
+          value: "Flux Notifiations"
+        - name: FEN_FROM_ADDRESS
+          value: flux-notifications@russparmer.dev
+        - name: FEN_TO_ADDRESS
+          value: rparmer02@gmail.com
+        ports:
+        - containerPort: 3000
+          name: api
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flux-email-notifier-svc
+  namespace: flux-system
+  labels:
+    app: flux-email-notifier
+spec:
+  selector:
+    app: flux-email-notifier
+  type: ClusterIP
+  ports:
+  - name: api
+    port: 3000
+    targetPort: api
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-flux-email-notifier
+  namespace: flux-system
+spec:
+  ingress:
+  - from:
+    - namespaceSelector: {}
+  podSelector:
+    matchLabels:
+      app: flux-email-notifier
+  policyTypes:
+  - Ingress
