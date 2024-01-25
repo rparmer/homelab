@@ -20,27 +20,3 @@ spec:
         kind: HelmRepository
         name: amd-gpu-helm
   interval: 10m0s
----
-apiVersion: notification.toolkit.fluxcd.io/v1beta3
-kind: Provider
-metadata:
-  name: flux-email-notifier
-  namespace: kube-system
-spec:
-  type: generic
-  address: http://flux-email-notifier-svc.flux-system:3000
----
-apiVersion: notification.toolkit.fluxcd.io/v1beta3
-kind: Alert
-metadata:
-  name: amd-gpu-flux-errors
-  namespace: kube-system
-spec:
-  providerRef:
-    name: flux-email-notifier
-  eventSeverity: error
-  eventSources:
-    - kind: HelmRepository
-      name: amd-gpu-helm
-    - kind: HelmRelease
-      name: amd-gpu
