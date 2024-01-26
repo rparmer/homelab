@@ -1,0 +1,26 @@
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: flux-email-notifier
+spec:
+  type: generic
+  address: http://flux-email-notifier-svc.flux-system:3000
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: flux-system-errors
+spec:
+  providerRef:
+    name: flux-email-notifier
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'
+    - kind: HelmRepository
+      name: '*'
+    - kind: HelmRelease
+      name: '*'
