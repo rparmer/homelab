@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets
+  namespace: monitoring
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: grafana-admin-creds
+  namespace: monitoring
+spec:
+  secretStoreRef:
+    name: vault
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  target:
+    name: grafana-admin-creds
+  dataFrom:
+    - extract:
+        key: grafana-admin-creds

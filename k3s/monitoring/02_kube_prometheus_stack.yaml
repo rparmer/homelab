@@ -1,0 +1,90 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: prometheus-community
+  namespace: monitoring
+spec:
+  interval: 10m0s
+  url: https://prometheus-community.github.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+  interval: 10m0s
+  values:
+    prometheus:
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        tls:
+          - secretName: prometheus-tls
+            hosts:
+              - prometheus.internal.russparmer.dev
+        hosts:
+          - prometheus.internal.russparmer.dev
+        path: /
+        pathType: Prefix
+      prometheusSpec:
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              resources:
+                requests:
+                  storage: 10Gi
+    grafana:
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        tls:
+          - secretName: grafana-tls
+            hosts:
+              - grafana.internal.russparmer.dev
+        hosts:
+          - grafana.internal.russparmer.dev
+        path: /
+        pathType: Prefix
+      admin:
+        existingSecret: grafana-admin-creds
+        userKey: username
+        passwordKey: password
+      persistence:
+        enabled: true
+        size: 10Gi
+      defaultDashboardsEnabled: false
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+          - name: grafana-dashboards-kubernetes
+            orgId: 1
+            folder: Kubernetes
+            type: file
+            disableDeletion: true
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/grafana-dashboards-kubernetes
+      dashboards:
+        grafana-dashboards-kubernetes:
+          k8s-system-api-server:
+            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
+          k8s-system-coredns:
+            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
+          k8s-views-global:
+            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
+          k8s-views-namespaces:
+            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
+          k8s-views-nodes:
+            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
+          k8s-views-pods:
+            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
