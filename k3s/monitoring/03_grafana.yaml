@@ -97,7 +97,7 @@ spec:
             access: proxy
             url: http://loki-gateway.monitoring.svc.cluster.local
             jsonData:
-              maxLines: 100       
+              maxLines: 1000
     dashboards:
       kubernetes:
         k8s-system-api-server:
