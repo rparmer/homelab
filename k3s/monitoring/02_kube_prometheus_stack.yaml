@@ -21,19 +21,26 @@ spec:
         name: prometheus-community
   interval: 10m0s
   values:
+    grafana:
+      enabled: false
     prometheus:
       ingress:
-        enabled: true
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        tls:
-          - secretName: prometheus-tls
-            hosts:
-              - prometheus.internal.russparmer.dev
-        hosts:
-          - prometheus.internal.russparmer.dev
-        path: /
-        pathType: Prefix
+        enabled: disabled
+        # annotations:
+        #   cert-manager.io/cluster-issuer: letsencrypt
+        # tls:
+        #   - secretName: prometheus-tls
+        #     hosts:
+        #       - prometheus.internal.russparmer.dev
+        # hosts:
+        #   - prometheus.internal.russparmer.dev
+        # path: /
+        # pathType: Prefix
+      # monitor:
+      #   relabelings:
+      #     - action: replace
+      #       replacement: k3s
+      #       targetLabel: cluster
       prometheusSpec:
         storageSpec:
           volumeClaimTemplate:
@@ -41,50 +48,26 @@ spec:
               resources:
                 requests:
                   storage: 10Gi
-    grafana:
-      ingress:
-        enabled: true
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        tls:
-          - secretName: grafana-tls
-            hosts:
-              - grafana.internal.russparmer.dev
-        hosts:
-          - grafana.internal.russparmer.dev
-        path: /
-        pathType: Prefix
-      admin:
-        existingSecret: grafana-admin-creds
-        userKey: username
-        passwordKey: password
-      persistence:
-        enabled: true
-        size: 10Gi
-      defaultDashboardsEnabled: false
-      dashboardProviders:
-        dashboardproviders.yaml:
-          apiVersion: 1
-          providers:
-          - name: grafana-dashboards-kubernetes
-            orgId: 1
-            folder: Kubernetes
-            type: file
-            disableDeletion: true
-            editable: true
-            options:
-              path: /var/lib/grafana/dashboards/grafana-dashboards-kubernetes
-      dashboards:
-        grafana-dashboards-kubernetes:
-          k8s-system-api-server:
-            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
-          k8s-system-coredns:
-            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
-          k8s-views-global:
-            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
-          k8s-views-namespaces:
-            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
-          k8s-views-nodes:
-            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
-          k8s-views-pods:
-            url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
+    # defaultRules:
+    #   additionalRuleLabels:
+    #     cluster: k3s
+    # kube-state-metrics:
+    #   prometheus:
+    #     monitor:
+    #       relabelings:
+    #         - action: replace
+    #           replacement: k3s
+    #           targetLabel: cluster
+    #         # - targetLabel: "instance"
+    #         #   sourceLabels:
+    #         #     - "__meta_kubernetes_pod_node_name"
+    # prometheus-node-exporter:
+    #   prometheus:
+    #     monitor:
+    #       relabelings:
+    #         - action: replace
+    #           replacement: k3s
+    #           targetLabel: cluster
+    #         # - targetLabel: "instance"
+    #         #   sourceLabels:
+    #         #     - "__meta_kubernetes_pod_node_name"

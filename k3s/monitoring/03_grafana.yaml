@@ -1,0 +1,130 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  interval: 10m0s
+  url: https://grafana.github.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  chart:
+    spec:
+      chart: grafana
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+  interval: 10m0s
+  values:
+    ingress:
+      enabled: true
+      annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+      tls:
+        - secretName: grafana-tls
+          hosts:
+            - grafana.internal.russparmer.dev
+      hosts:
+        - grafana.internal.russparmer.dev
+      path: /
+      pathType: Prefix
+    admin:
+      existingSecret: grafana-admin-creds
+      userKey: username
+      passwordKey: password
+    persistence:
+      enabled: true
+      size: 10Gi
+    defaultDashboardsEnabled: false
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: default
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+          - name: kubernetes
+            orgId: 1
+            folder: Kubernetes
+            type: file
+            disableDeletion: true
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/kubernetes
+          - name: loki
+            orgId: 1
+            folder: Loki
+            type: file
+            disableDeletion: true
+            editable: false
+            options:
+              path: /var/lib/grafana/dashboards/loki
+          # - name: loki-2
+          #   orgId: 1
+          #   folder: Loki
+          #   type: file
+          #   disableDeletion: true
+          #   editable: false
+          #   options:
+          #     path: /var/lib/grafana/dashboards/loki-2
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+            isDefault: true
+          - name: Alertmanager
+            type: alertmanager
+            access: proxy
+            url: http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093
+            jsonData:
+              implementation: prometheus
+          - name: Loki
+            type: loki
+            access: proxy
+            url: http://loki-gateway.monitoring.svc.cluster.local
+            jsonData:
+              maxLines: 100       
+    dashboards:
+      kubernetes:
+        k8s-system-api-server:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
+          datasource: Prometheus
+        k8s-system-coredns:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
+          datasource: Prometheus
+        k8s-views-global:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
+          datasource: Prometheus
+        k8s-views-namespaces:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
+          datasource: Prometheus
+        k8s-views-nodes:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
+          datasource: Prometheus
+        k8s-views-pods:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
+          datasource: Prometheus
+      # loki:
+      #   loki-metrics:
+      #     gnetId: 14055
+      #     datasource: Loki
+      #   loki-logs:
+      #     url: https://raw.githubusercontent.com/grafana/loki/main/production/helm/loki/src/dashboards/loki-logs.json
+      #     datasource: Loki
+    # dashboardsConfigMaps:
+    #   loki-1: loki-dashboards-1
+    #   loki-2: loki-dashboards-2

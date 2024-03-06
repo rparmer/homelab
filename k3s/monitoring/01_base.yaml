@@ -24,3 +24,19 @@ spec:
   dataFrom:
     - extract:
         key: grafana-admin-creds
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: minio-access-creds
+  namespace: monitoring
+spec:
+  secretStoreRef:
+    name: vault
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  target:
+    name: minio-access-creds
+  dataFrom:
+    - extract:
+        key: minio-access-creds
