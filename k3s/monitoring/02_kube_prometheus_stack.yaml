@@ -25,22 +25,17 @@ spec:
       enabled: false
     prometheus:
       ingress:
-        enabled: disabled
-        # annotations:
-        #   cert-manager.io/cluster-issuer: letsencrypt
-        # tls:
-        #   - secretName: prometheus-tls
-        #     hosts:
-        #       - prometheus.internal.russparmer.dev
-        # hosts:
-        #   - prometheus.internal.russparmer.dev
-        # path: /
-        # pathType: Prefix
-      # monitor:
-      #   relabelings:
-      #     - action: replace
-      #       replacement: k3s
-      #       targetLabel: cluster
+        enabled: enabled
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        tls:
+          - secretName: prometheus-tls
+            hosts:
+              - prometheus.internal.russparmer.dev
+        hosts:
+          - prometheus.internal.russparmer.dev
+        path: /
+        pathType: Prefix
       prometheusSpec:
         storageSpec:
           volumeClaimTemplate:
@@ -48,26 +43,3 @@ spec:
               resources:
                 requests:
                   storage: 10Gi
-    # defaultRules:
-    #   additionalRuleLabels:
-    #     cluster: k3s
-    # kube-state-metrics:
-    #   prometheus:
-    #     monitor:
-    #       relabelings:
-    #         - action: replace
-    #           replacement: k3s
-    #           targetLabel: cluster
-    #         # - targetLabel: "instance"
-    #         #   sourceLabels:
-    #         #     - "__meta_kubernetes_pod_node_name"
-    # prometheus-node-exporter:
-    #   prometheus:
-    #     monitor:
-    #       relabelings:
-    #         - action: replace
-    #           replacement: k3s
-    #           targetLabel: cluster
-    #         # - targetLabel: "instance"
-    #         #   sourceLabels:
-    #         #     - "__meta_kubernetes_pod_node_name"
