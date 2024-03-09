@@ -37,9 +37,10 @@ spec:
         path: /
         pathType: Prefix
       prometheusSpec:
+        retention: 5d
         storageSpec:
           volumeClaimTemplate:
             spec:
               resources:
                 requests:
-                  storage: 10Gi
+                  storage: 50Gi
