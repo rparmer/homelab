@@ -69,14 +69,6 @@ spec:
             editable: false
             options:
               path: /var/lib/grafana/dashboards/loki
-          # - name: loki-2
-          #   orgId: 1
-          #   folder: Loki
-          #   type: file
-          #   disableDeletion: true
-          #   editable: false
-          #   options:
-          #     path: /var/lib/grafana/dashboards/loki-2
     datasources:
       datasources.yaml:
         apiVersion: 1
@@ -118,13 +110,3 @@ spec:
         k8s-views-pods:
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
           datasource: Prometheus
-      # loki:
-      #   loki-metrics:
-      #     gnetId: 14055
-      #     datasource: Loki
-      #   loki-logs:
-      #     url: https://raw.githubusercontent.com/grafana/loki/main/production/helm/loki/src/dashboards/loki-logs.json
-      #     datasource: Loki
-    # dashboardsConfigMaps:
-    #   loki-1: loki-dashboards-1
-    #   loki-2: loki-dashboards-2
