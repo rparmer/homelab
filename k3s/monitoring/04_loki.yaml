@@ -12,6 +12,7 @@ spec:
         kind: HelmRepository
         name: grafana
   interval: 10m0s
+  timeout: 15m0s
   values:
     loki:
       auth_enabled: false
@@ -101,7 +102,6 @@ spec:
         kind: HelmRepository
         name: grafana
   interval: 10m0s
-  timeout: 15m0s
   values:
     initContainer:
       - name: init
