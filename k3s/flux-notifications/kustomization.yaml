@@ -12,4 +12,5 @@ resources:
 - namespaces/longhorn-system
 - namespaces/metallb-system
 - namespaces/minecraft
+- namespaces/monitoring
 - namespaces/system-upgrade
