@@ -55,7 +55,7 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    {{- include "loki.writeSelectorLabels" . | nindent 12 }}
+                    app.kubernetes.io/component: write
                 topologyKey: kubernetes.io/hostname
     read:
       replicas: 3
@@ -66,7 +66,7 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    {{- include "loki.readSelectorLabels" . | nindent 12 }}
+                    app.kubernetes.io/component: read
                 topologyKey: kubernetes.io/hostname
     backend:
       replicas: 3
@@ -77,7 +77,7 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    {{- include "loki.backendSelectorLabels" . | nindent 12 }}
+                    app.kubernetes.io/component: backend
                 topologyKey: kubernetes.io/hostname
   valuesFrom:
     - targetPath: loki.storage.s3.region
