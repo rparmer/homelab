@@ -30,6 +30,15 @@ spec:
         max_outstanding_requests_per_tenant: 2048
       querier:
         max_concurrent: 20
+      schemaConfig:
+        configs:
+          - from: '2024-04-01'
+            store: tsdb
+            object_store: s3
+            schema: v13
+            index:
+              prefix: index_
+              period: 24h
     monitoring:
       dashboards:
         enabled: false
