@@ -21,27 +21,6 @@ spec:
     - extract:
         key: unifi-access-creds
 ---
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: ghcr-regcreds
-  namespace: unifi-parental-controls
-spec:
-  secretStoreRef:
-    name: vault
-    kind: ClusterSecretStore
-  refreshInterval: 1h
-  target:
-    name: ghcr-regcreds
-    template:
-      type: kubernetes.io/dockerconfigjson
-      data:
-        .dockerconfigjson: |
-          {"auths":{"https://ghcr.io":{"username":"{{ .username }}","password":"{{ .password }}"}}}
-  dataFrom:
-    - extract:
-        key: ghcr-regcreds
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -80,8 +59,6 @@ spec:
         - containerPort: 8080
           name: http
           protocol: TCP
-      imagePullSecrets:
-      - name: ghcr-regcreds
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -111,5 +88,3 @@ spec:
         - containerPort: 3000
           name: http
           protocol: TCP
-      imagePullSecrets:
-      - name: ghcr-regcreds
