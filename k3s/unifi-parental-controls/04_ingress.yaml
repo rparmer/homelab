@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: unifi-parental-controls-api
+  namespace: unifi-parental-controls
+  labels:
+    app: unifi-parental-controls-api
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+  - secretName: unifi-parental-controls-api-tls
+    hosts:
+    - api.unificontrols.internal.russparmer.dev
+  rules:
+  - host: api.unificontrols.internal.russparmer.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: unifi-parental-controls-api
+            port:
+              name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: unifi-parental-controls-ui
+  namespace: unifi-parental-controls
+  labels:
+    app: unifi-parental-controls-ui
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+  - secretName: unifi-parental-controls-ui-tls
+    hosts:
+    - unificontrols.internal.russparmer.dev
+  rules:
+  - host: unificontrols.internal.russparmer.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: unifi-parental-controls-ui
+            port:
+              name: http
