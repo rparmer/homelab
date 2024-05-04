@@ -93,6 +93,17 @@ helm repo add cilium https://helm.cilium.io
 helm install cilium cilium/cilium -n kube-system -f cilium.values.yaml
 ```
 
+# configure global reg creds
+# https://docs.k3s.io/installation/private-registry
+```sh
+sudo bash -c 'cat << EOF > /etc/rancher/k3s/registries.yaml
+configs:
+  ghcr.io:
+    auth:
+      username: user
+      password: token
+EOF'
+```
 
 ---
 
