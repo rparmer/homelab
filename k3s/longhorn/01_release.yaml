@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: longhorn-system
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: longhorn
@@ -12,7 +12,7 @@ spec:
   interval: 10m0s
   url: https://charts.longhorn.io
 ---
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: longhorn
