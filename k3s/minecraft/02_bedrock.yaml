@@ -12,6 +12,10 @@ spec:
         name: itzg
   interval: 10m0s
   values:
+    image:
+      repository: itzg/minecraft-bedrock-server
+      tag: latest
+      pullPolicy: Always
     persistence:
       dataDir:
         enabled: true
