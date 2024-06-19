@@ -14,3 +14,4 @@ resources:
 - namespaces/minecraft
 - namespaces/monitoring
 - namespaces/system-upgrade
+- namespaces/unifi-parental-controls
