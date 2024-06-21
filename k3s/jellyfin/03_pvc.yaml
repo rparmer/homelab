@@ -6,8 +6,7 @@ metadata:
   labels:
     app: jellyfin
 spec:
-  storageClassName: longhorn
-  volumeName: pvc-9172ccd2-d15e-43e7-9e55-262962962b3a
+  storageClassName: nfs-csi
   accessModes:
     - ReadWriteMany
   resources:

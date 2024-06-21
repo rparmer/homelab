@@ -1,13 +1,11 @@
-# install required packages
-```
-sudo apt install -y nfs-common
-```
-
 # config no password sudo
 ```sh
 echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/ubuntu
 ```
+
 # config static ip
+remove/backup any existing /etc/netplan files
+
 sudo vi /etc/netplan/99-config.yaml
 
 ```yaml
@@ -25,6 +23,7 @@ network:
         addresses: [192.168.1.1, 1.1.1.1]
 ```
 
+sudo chmod 600 /etc/netplan/99-config.yaml
 sudo netplan apply
 
 # resize disk
@@ -33,57 +32,49 @@ lvm> lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
 lvm> exit
 sudo resize2fs /dev/ubuntu-vg/ubuntu-lv
 
+# install required packages
+```sh
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y nfs-common
+```
+
 # install k3s on master node
 curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable sh -s - server \
   --disable local-storage \
   --disable traefik \
   --disable servicelb \
   --disable metrics-server \
-  --write-kubeconfig-mode 0644 \
-  --flannel-backend none \
   --disable-network-policy \
   --disable-kube-proxy \
+  --flannel-backend none \
+  --write-kubeconfig-mode 0644 \
   --etcd-s3 \
-  --etcd-s3-bucket=k3s \
-  --etcd-s3-folder=backups/etcd \
-  --etcd-s3-access-key=${ETCD_S3_ACCESS_KEY} \
-  --etcd-s3-secret-key=${ETCD_S3_SECRET_KEY} \
-  --etcd-s3-endpoint=minio-storage.parmernas.synology.me \
-  --cluster-init
+  --etcd-s3-bucket k3s \
+  --etcd-s3-folder backups/etcd \
+  --etcd-s3-access-key ${ETCD_S3_ACCESS_KEY} \
+  --etcd-s3-secret-key ${ETCD_S3_SECRET_KEY} \
+  --etcd-s3-endpoint minio-storage.parmernas.synology.me \
+  --cluster-init \
+  --tls-san 192.168.1.200
 
-# install k3s on agent nodes
-curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable sh -s - agent \
-  --token ${K3S_TOKEN} \
-  --server ${K3S_URL}
-
-# if k3s install script doesn't work run
-sudo chmod 777 /tmp/
-
-# restore k3s server
+# install k3s multi-master
 curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable sh -s - server \
   --disable local-storage \
   --disable traefik \
   --disable servicelb \
-  --write-kubeconfig-mode 0644 \
-  --cluster-init \
-  --cluster-reset \
-  --etcd-s3 \
-  --etcd-s3-bucket=k3s \
-  --etcd-s3-folder=backups/etcd \
-  --etcd-s3-access-key=${ETCD_S3_ACCESS_KEY} \
-  --etcd-s3-secret-key=${ETCD_S3_SECRET_KEY} \
-  --etcd-s3-endpoint=minio-storage.parmernas.synology.me \
-  --cluster-reset-restore-path=${PATH} \
-  --token=${TOKEN}
+  --disable metrics-server \
+  --disable-network-policy \
+  --disable-kube-proxy \
+  --flannel-backend none \
+  --token ${K3S_TOKEN} \
+  --server https://192.168.2.20:6443 \
+  --tls-san 192.168.1.200
 
-# manual etcd backup
-sudo k3s etcd-snapshot save \
-  --etcd-s3 \
-  --etcd-s3-bucket=k3s \
-  --etcd-s3-folder=backups/etcd \
-  --etcd-s3-access-key=${ETCD_S3_ACCESS_KEY} \
-  --etcd-s3-secret-key=${ETCD_S3_SECRET_KEY} \
-  --etcd-s3-endpoint=minio-storage.parmernas.synology.me
+# install k3s on agent nodes
+curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable sh -s - agent \
+  --token ${K3S_TOKEN} \
+  --server 192.168.1.200 # haproxy address
 
 # install cilium
 ```sh
@@ -100,12 +91,39 @@ sudo bash -c 'cat << EOF > /etc/rancher/k3s/registries.yaml
 configs:
   ghcr.io:
     auth:
-      username: user
-      password: token
+      username: rparmer
+      password: <token>
 EOF'
 ```
 
+# restore k3s server
+```sh
+sudo systemctl stop k3s
+sudo k3s server \
+  --cluster-init \
+  --cluster-reset \
+  --cluster-reset-restore-path=<SNAPSHOT> \
+  --etcd-s3 \
+  --etcd-s3-bucket=k3s \
+  --etcd-s3-folder=backups/etcd \
+  --etcd-s3-access-key=${ETCD_S3_ACCESS_KEY} \
+  --etcd-s3-secret-key=${ETCD_S3_SECRET_KEY} \
+  --etcd-s3-endpoint=minio-storage.parmernas.synology.me
+```
+
+# manual etcd backup
+sudo k3s etcd-snapshot save \
+  --etcd-s3 \
+  --etcd-s3-bucket=k3s \
+  --etcd-s3-folder=backups/etcd \
+  --etcd-s3-access-key=${ETCD_S3_ACCESS_KEY} \
+  --etcd-s3-secret-key=${ETCD_S3_SECRET_KEY} \
+  --etcd-s3-endpoint=minio-storage.parmernas.synology.me
+
 ---
+
+# if k3s install script doesn't work run
+sudo chmod 777 /tmp/
 
 # edit `/etc/hosts` file to include names and address of cluster nodes
 

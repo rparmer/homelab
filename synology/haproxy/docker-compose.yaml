@@ -1,0 +1,10 @@
+services:
+  k3s-proxy:
+    image: haproxy:latest
+    pull_policy: always
+    restart: always
+    container_name: k3s-proxy
+    ports:
+      - "6443:6443"
+    volumes:
+      - /volume1/docker/haproxy/k3s:/usr/local/etc/haproxy:rw
