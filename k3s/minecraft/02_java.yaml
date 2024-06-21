@@ -25,13 +25,13 @@ spec:
         memory: 2048Mi
         cpu: 1
     minecraftServer:
-      eula: "TRUE"
-      version: 1.21
+      eula: 'TRUE'
+      version: '1.21'
       gameMode: creative
       memory: 2048M
       forcegameMode: true
       overrideServerProperties: true
-      motd: "Welcome to Parmer Minecraft!!"
+      motd: 'Welcome to Parmer Minecraft!!'
       
       # service config
       serviceType: LoadBalancer
