@@ -37,6 +37,11 @@ sudo resize2fs /dev/ubuntu-vg/ubuntu-lv
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y nfs-common
+
+wget https://repo.radeon.com/amdgpu-install/latest/ubuntu/jammy/amdgpu-install_6.1.60102-1_all.deb
+sudo apt install ./amdgpu-install_6.1.60102-1_all.deb
+sudo apt update
+amdgpu-install
 ```
 
 # install k3s on master node
@@ -87,13 +92,13 @@ helm install cilium cilium/cilium -n kube-system -f cilium.values.yaml
 # configure global reg creds
 # https://docs.k3s.io/installation/private-registry
 ```sh
-sudo bash -c 'cat << EOF > /etc/rancher/k3s/registries.yaml
+sudo bash -c "cat << EOF > /etc/rancher/k3s/registries.yaml
 configs:
   ghcr.io:
     auth:
       username: rparmer
-      password: <token>
-EOF'
+      password: ${GITHUB_TOKEN}
+EOF"
 ```
 
 # restore k3s server
