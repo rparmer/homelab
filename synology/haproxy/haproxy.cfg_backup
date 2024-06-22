@@ -8,6 +8,7 @@ backend k3s-backend
     mode tcp
     option tcp-check
     balance roundrobin
+    default-server inter 10s downinter 5s
     server gaston-1 192.168.2.20:6443 check
     server gaston-2 192.168.2.21:6443 check
     server gaston-3 192.168.2.22:6443 check
