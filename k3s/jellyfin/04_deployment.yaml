@@ -39,9 +39,6 @@ spec:
           name: discovery-udp
           protocol: UDP
         resources:
-          requests:
-            memory: 512Mi
-            cpu: 500m
           limits:
             amd.com/gpu: 1
         volumeMounts:
