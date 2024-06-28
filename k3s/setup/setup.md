@@ -125,6 +125,13 @@ sudo k3s etcd-snapshot save \
   --etcd-s3-secret-key=${ETCD_S3_SECRET_KEY} \
   --etcd-s3-endpoint=minio-storage.parmernas.synology.me
 
+# drain node for maintenance (take out of service)
+kubectl drain --delete-emptydir-data --ignore-daemonsets <node_name>
+
+# put node back in service
+kubectl uncordon <node_name>
+
+
 ---
 
 # if k3s install script doesn't work run
