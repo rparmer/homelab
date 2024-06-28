@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # remove old backups
-ls /volume1/k3s_backup/*.tar.gz | sort -r | tail -n +6 | xargs -I {} rm -- {}
+ls /volume1/k3s_backup/*.tar.gz | sort -r | tail -n +5 | xargs -I {} rm -- {}
 
 # create new backup
 cd /volume1/k3s
