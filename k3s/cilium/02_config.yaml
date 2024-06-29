@@ -1,7 +1,7 @@
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: pool
+  name: default
   namespace: kube-system
 spec:
   blocks:
