@@ -24,6 +24,8 @@ spec:
       requests:
         memory: 2048Mi
         cpu: 1
+    serviceAnnotations:
+      io.cilium/lb-ipam-ips: 192.168.2.201
     minecraftServer:
       eula: 'TRUE'
       version: '1.21'
@@ -35,7 +37,6 @@ spec:
       
       # service config
       serviceType: LoadBalancer
-      loadBalancerIP: 192.168.2.201
 
       # allowed users
       whitelist: enderdragonbb,VelocityMoon_,potato_corgi_13

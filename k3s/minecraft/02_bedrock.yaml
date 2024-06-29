@@ -32,6 +32,8 @@ spec:
           - name: bds-property-definitions
             configMap:
               name: bds-property-definitions
+    serviceAnnotations:
+      io.cilium/lb-ipam-ips: 192.168.2.205
     minecraftServer:
       eula: "TRUE"
       version: "LATEST"
@@ -43,7 +45,6 @@ spec:
       
       # service config
       serviceType: LoadBalancer
-      loadBalancerIP: 192.168.2.205
 
       # allowed users
       whitelistUsers: enderdragonbb,VelocityMoon_,potato_corgi_13,BeastMac1026
