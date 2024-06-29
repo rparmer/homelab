@@ -28,9 +28,10 @@ spec:
   values:
     controller:
       service:
-        loadBalancerIP: 192.168.2.200
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.2.200
         externalTrafficPolicy: Local
       ingressClassResource:
         default: true
       extraArgs:
-        default-ssl-certificate: "ingress-nginx/default-tls"
+        default-ssl-certificate: ingress-nginx/default-tls
