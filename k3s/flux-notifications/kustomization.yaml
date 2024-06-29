@@ -9,7 +9,7 @@ resources:
 - namespaces/ingress-nginx
 - namespaces/jellyfin
 - namespaces/kube-system
-- namespaces/metallb-system
+# - namespaces/metallb-system
 - namespaces/minecraft
 - namespaces/monitoring
 - namespaces/system-upgrade
