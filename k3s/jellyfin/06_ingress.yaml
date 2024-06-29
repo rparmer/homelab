@@ -20,6 +20,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: jellyfin-svc-tcp
+            name: jellyfin-svc
             port:
               name: web
